@@ -13,6 +13,8 @@ class PeliculasProvider {
   String _language = 'es-ES';
 
   int _popularesPage = 0;
+  //vamos a evitar que se carguen las 900 peliculas apara ahorrar solicitudes http y no gasten demasiados datos
+  bool _cargando = false;
   List<Pelicula> _populares = new List();
 
   //codigo para crear un stream
@@ -50,7 +52,11 @@ class PeliculasProvider {
   }
 
   Future<List<Pelicula>> getPopulares() async {
+    if (_cargando) return [];
+    _cargando = true;
+
     _popularesPage++;
+    print('cargando siguientes');
     final url = Uri.https(_url, '3/movie/popular', {
       'api_key': _apikey,
       'language': _language,
@@ -60,7 +66,7 @@ class PeliculasProvider {
     final resp = await _procesarRespuesta(url);
     _populares.addAll(resp);
     popularesSink(_populares);
-
+    _cargando = false;
     return resp;
   }
 }
